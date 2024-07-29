@@ -1,5 +1,6 @@
 package com.burakandarman.springaidemo.Service.Impl;
 
+import com.burakandarman.springaidemo.Dto.AudioResponseDto;
 import com.burakandarman.springaidemo.Service.ChatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +61,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Resource getAudioResponse(MultipartFile promptAudio) throws IOException {
+    public AudioResponseDto getAudioResponse(MultipartFile promptAudio) throws IOException {
+
+        File promptAudioFile = this.createFileFromBytes(promptAudio.getBytes(), "promptAudio.mp3");
 
         String promptString = openAiAudioTranscriptionModel
-                .call(new AudioTranscriptionPrompt(
-                        createResourceFromBytes(promptAudio.getBytes(), "promptAudio.mp3")
-                        )
+                .call(new AudioTranscriptionPrompt(new FileSystemResource(promptAudioFile))
                 )
                 .getResult()
                 .getOutput();
@@ -76,13 +77,20 @@ public class ChatServiceImpl implements ChatService {
                 .getResult()
                 .getOutput();
 
-        return this.createResourceFromBytes(audioResponseBytes, "audioResponse.mp3");
+        File audioResponseFile = this.createFileFromBytes(audioResponseBytes, "audioResponse.mp3");
+
+        return new AudioResponseDto(
+                promptAudioFile.toURI().toURL(),
+                promptString,
+                audioResponseFile.toURI().toURL(),
+                textResponse
+        );
 
     }
 
-    private FileSystemResource createResourceFromBytes(byte[] byteArray, String resourceNameWithExt) {
+    private File createFileFromBytes(byte[] byteArray, String fileNameWithExt) {
 
-        File file = new File("src/main/resources/runtime_resources" + resourceNameWithExt);
+        File file = new File("src/main/resources/runtime_resources/" + fileNameWithExt);
 
         try {
             if(!file.exists()) {
@@ -93,7 +101,7 @@ public class ChatServiceImpl implements ChatService {
                 os.write(byteArray);
             }
 
-            return new FileSystemResource(file);
+            return file;
 
         } catch(Exception e) {
             log.error(e.getMessage());

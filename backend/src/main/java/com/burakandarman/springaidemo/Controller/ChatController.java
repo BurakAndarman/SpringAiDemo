@@ -1,5 +1,6 @@
 package com.burakandarman.springaidemo.Controller;
 
+import com.burakandarman.springaidemo.Dto.AudioResponseDto;
 import com.burakandarman.springaidemo.Service.ChatService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -38,12 +39,12 @@ public class ChatController {
 
     }
 
-    @PostMapping(value = "/audio", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {MediaType.ALL_VALUE})
-    public ResponseEntity<Resource> getAudioResponse(@RequestParam MultipartFile promptAudio) throws IOException {
+    @PostMapping(value = "/audio", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<AudioResponseDto> getAudioResponse(@RequestParam MultipartFile promptAudio) throws IOException {
 
-        Resource audioResponse = chatService.getAudioResponse(promptAudio);
+        AudioResponseDto audioResponseDto = chatService.getAudioResponse(promptAudio);
 
-        return new ResponseEntity<>(audioResponse, HttpStatus.OK);
+        return new ResponseEntity<>(audioResponseDto, HttpStatus.OK);
 
     }
 
