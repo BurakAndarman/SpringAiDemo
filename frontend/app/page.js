@@ -1,20 +1,27 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from "react-markdown"
+import Icon from '@mdi/react';
+import { mdiAlertCircleOutline } from '@mdi/js'
 
 const Chat = () => {
   const [currentText, setCurrentText] = useState('')
   const [error, setError] = useState('')
+  const errorModalRef = useRef(null)
   const [messages, setMessages] = useState([])
   const messagesRef = useRef(null)
-
+  
   useEffect(() => {
-    messagesRef.current?.lastElementChild?.scrollIntoView()
+    messagesRef.current?.lastElementChild?.scrollIntoView({behavior: 'smooth'})
   }, [messages])
 
-  const handleCurrentTextChange = (event) => {
-    setCurrentText(event.target.value)
-  }
+  useEffect(() => {
+    if(error) {
+      errorModalRef.current?.showModal()
+    } else {
+      errorModalRef.current?.close()
+    }
+  }, [error])
 
   const sendCurrentText = async (event) => {
       try{
@@ -54,7 +61,7 @@ const Chat = () => {
           }])
 
       } catch(e) {
-          
+          setError(e.message)
       }
   }
 
@@ -85,7 +92,7 @@ const Chat = () => {
         >
             <input type="text"
                    value={currentText}
-                   onChange={handleCurrentTextChange}
+                   onChange={(event) => setCurrentText(event.target.value)}
                    className="grow"
                    placeholder="Send a message"
             />
@@ -94,14 +101,22 @@ const Chat = () => {
                    className='btn rounded-full min-h-10 h-10'
             />
         </form>
-        <dialog id="error-modal" className="modal">
+        <dialog ref={errorModalRef} className="modal">
           <div className="modal-box">
-            <h3 className="font-bold text-lg">Error</h3>
-            <p className="py-4">Press ESC key or click the button below to close</p>
+            <div className="flex items-center gap-2">
+              <Icon path={mdiAlertCircleOutline}
+                    color="red"
+                    size={1.2}
+              />
+              <h3 className="font-bold text-lg">Error</h3>
+            </div>
+            <p className="py-4">{ error }</p>
             <div className="modal-action">
-              <form method="dialog">
-                <button className="btn">Close</button>
-              </form>
+                <button className="btn"
+                        onClick={() => setError('')}
+                >
+                  Close
+                </button>
             </div>
           </div>
         </dialog>

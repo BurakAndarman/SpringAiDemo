@@ -12,7 +12,9 @@ export const metadata = {
 const RootLayout = ({ children }) => {
   return (
     <html lang="en">
-      <body className={`${inter.className} h-screen flex flex-col`}>
+      <body className={`${inter.className} h-screen flex flex-col`}
+            data-theme="night"
+      >
         <Navbar/>
         <main className="grow">
           {children}
