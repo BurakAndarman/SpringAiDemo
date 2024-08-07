@@ -80,9 +80,9 @@ public class ChatServiceImpl implements ChatService {
         File audioResponseFile = this.createFileFromBytes(audioResponseBytes, "audioResponse.mp3");
 
         return new AudioResponseDto(
-                promptAudioFile.toURI().toURL(),
+                promptAudioFile,
                 promptString,
-                audioResponseFile.toURI().toURL(),
+                audioResponseFile,
                 textResponse
         );
 

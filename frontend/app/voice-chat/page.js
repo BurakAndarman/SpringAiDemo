@@ -1,43 +1,65 @@
 'use client'
-import { useState } from 'react'
-import Icon from '@mdi/react';
+import { useState, useRef } from 'react'
+import Icon from '@mdi/react'
 import { mdiMicrophone } from '@mdi/js'
 
 const VoiceChat = () => {
-  let audioChunks = []
-  let audioRecorder = null
+  const mediaRecorder = useRef(null)
+  const chunks = useRef([])
 
-  const onMicrophoneClicked = async () => {
+  const onMicrophoneClicked = () => {
     try {
-      audioRecorder?.stop()
+      if(mediaRecorder.current?.state !== 'recording') {
+        startRecording()
+      } else {
+        stopRecording()
+      }
+      
+    } catch(e) {
+      alert(e.message)
+    }
+  }
 
-      console.log(audioChunks)
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
-      if(audioChunks[0]) {
-        console.log(audioChunks)
-
-        const blobObj = new Blob(audioChunks, { type: 'audio/webm' })
-        const audioUrl = URL.createObjectURL(blobObj)
-        const audio = new Audio(audioUrl)
-        audio.play()
-
-        audioRecorder = null
-        audioChunks = []
-
+    mediaRecorder.current = new MediaRecorder(stream)
+    mediaRecorder.current.start()
+    mediaRecorder.current.ondataavailable = (e) => {
+      if (!e.data?.size) {
         return
       }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio : true })
-
-      audioRecorder = new MediaRecorder(stream)
-      audioRecorder.addEventListener('dataavailable', e => {
-        audioChunks.push(e.data)
-      })
-      audioRecorder.start()
-
-    } catch(e) {
-      alert(e)
+      chunks.current.push(e.data)
     }
+  }
+
+  const stopRecording = () => {
+    mediaRecorder.current.stop()
+    mediaRecorder.current.onstop = () => {
+      const recordedBlob = new Blob(chunks.current, { type: 'audio/webm' })
+      sendAudioRecord(recordedBlob)
+    }
+  }
+
+  const sendAudioRecord = async (recordedBlob) => {
+    const formData = new FormData()
+
+    formData.append("promptAudio", recordedBlob)
+
+    const response = await fetch('http://localhost:8080/api/v1/chat/audio',{
+        method : "POST",
+        body: formData
+    })
+
+    if(response.status !== 200) {
+      throw new Error("There is a problem. Please try again later.")
+    }
+
+    const successResponse = await response.json()
+
+    const audio = new Audio()
+    audio.src = new File(successResponse.audioResponseUrl)
+    audio.play()
   }
 
   return (
@@ -51,7 +73,9 @@ const VoiceChat = () => {
                   color="white"
             />
           </div>
-          <div className="text-lg">Click Microphone to Start!</div>
+          <div className="text-lg">
+            {mediaRecorder.current?.state !== 'recording' ? 'Click Microphone to Start!' : 'Recording Your Voice'}
+          </div>
       </div>
     </div>
   )

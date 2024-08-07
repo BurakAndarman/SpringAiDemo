@@ -2,7 +2,7 @@ package com.burakandarman.springaidemo.Dto;
 
 import lombok.*;
 
-import java.net.URL;
+import java.io.File;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,11 +11,11 @@ import java.net.URL;
 @Setter
 public class AudioResponseDto {
 
-    URL promptAudioUrl;
+    File promptAudioFile;
 
     String promptText;
 
-    URL audioResponseUrl;
+    File audioResponseFile;
 
     String textResponse;
 
