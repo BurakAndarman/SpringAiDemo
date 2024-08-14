@@ -1,11 +1,13 @@
 'use client'
 import { useState, useRef } from 'react'
 import Icon from '@mdi/react'
-import { mdiMicrophone } from '@mdi/js'
+import { mdiMicrophone, mdiAccountVoice} from '@mdi/js'
 
 const VoiceChat = () => {
   const mediaRecorder = useRef(null)
+  const [recording, setRecording] = useState(false)
   const chunks = useRef([])
+  const [playing, setPlaying] = useState(false)
 
   const onMicrophoneClicked = () => {
     try {
@@ -25,6 +27,9 @@ const VoiceChat = () => {
 
     mediaRecorder.current = new MediaRecorder(stream)
     mediaRecorder.current.start()
+
+    setRecording(true)
+
     mediaRecorder.current.ondataavailable = (e) => {
       if (!e.data?.size) {
         return
@@ -35,6 +40,9 @@ const VoiceChat = () => {
 
   const stopRecording = () => {
     mediaRecorder.current.stop()
+
+    setRecording(false)
+    
     mediaRecorder.current.onstop = () => {
       const recordedBlob = new Blob(chunks.current, { type: 'audio/webm' })
       sendAudioRecord(recordedBlob)
@@ -57,25 +65,42 @@ const VoiceChat = () => {
 
     const successResponse = await response.json()
 
-    const audio = new Audio()
-    audio.src = new File(successResponse.audioResponseUrl)
+    const audio = new Audio(successResponse.audioResponseFile)
+
+    audio.addEventListener("play", () => {
+      setPlaying(true)
+    })
+
+    audio.addEventListener("ended", () => {
+      setPlaying(false)
+    })
+
     audio.play()
   }
 
   return (
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center justify-between gap-2">
-          <div onClick={onMicrophoneClicked}
-               className="cursor-pointer"
-          >
-            <Icon path={mdiMicrophone}
-                  size={6}
-                  color="white"
-            />
-          </div>
-          <div className="text-lg">
-            {mediaRecorder.current?.state !== 'recording' ? 'Click Microphone to Start!' : 'Recording Your Voice'}
-          </div>
+          { playing ?
+              <Icon path={mdiAccountVoice}
+                    size={6}
+                    color="white"
+              />
+              :
+              <>
+                <div onClick={onMicrophoneClicked}
+                  className="cursor-pointer"
+                >
+                  <Icon path={mdiMicrophone}
+                        size={6}
+                        color="white"
+                  />
+                </div>
+                <div className="text-lg">
+                  {recording ? 'Recording Your Voice' : 'Click Microphone to Start!'}
+                </div>
+              </>              
+          }
       </div>
     </div>
   )

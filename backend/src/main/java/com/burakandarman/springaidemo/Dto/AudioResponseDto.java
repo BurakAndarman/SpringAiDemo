@@ -11,11 +11,11 @@ import java.io.File;
 @Setter
 public class AudioResponseDto {
 
-    File promptAudioFile;
+    String promptAudioFile;
 
     String promptText;
 
-    File audioResponseFile;
+    String audioResponseFile;
 
     String textResponse;
 

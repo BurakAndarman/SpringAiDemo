@@ -77,12 +77,12 @@ public class ChatServiceImpl implements ChatService {
                 .getResult()
                 .getOutput();
 
-        File audioResponseFile = this.createFileFromBytes(audioResponseBytes, "audioResponse.mp3");
+        this.createFileFromBytes(audioResponseBytes, "audioResponse.mp3");
 
         return new AudioResponseDto(
-                promptAudioFile,
+                "http://localhost:8080/api/v1/chat/file/promptAudio.mp3",
                 promptString,
-                audioResponseFile,
+                "http://localhost:8080/api/v1/chat/file/audioResponse.mp3",
                 textResponse
         );
 
