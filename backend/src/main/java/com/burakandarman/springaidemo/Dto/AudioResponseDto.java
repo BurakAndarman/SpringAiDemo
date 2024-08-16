@@ -2,8 +2,6 @@ package com.burakandarman.springaidemo.Dto;
 
 import lombok.*;
 
-import java.io.File;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -13,7 +11,7 @@ public class AudioResponseDto {
 
     String promptAudioFile;
 
-    String promptText;
+    String promptString;
 
     String audioResponseFile;
 

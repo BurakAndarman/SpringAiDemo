@@ -2,27 +2,22 @@ package com.burakandarman.springaidemo.Service.Impl;
 
 import com.burakandarman.springaidemo.Dto.AudioResponseDto;
 import com.burakandarman.springaidemo.Service.ChatService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.burakandarman.springaidemo.Service.FileService;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.openai.*;
 import org.springframework.ai.openai.audio.speech.SpeechPrompt;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-
-    private static Logger log = LoggerFactory.getLogger(ChatServiceImpl.class);
 
     private final ChatClient chatClient;
 
@@ -32,14 +27,26 @@ public class ChatServiceImpl implements ChatService {
 
     private final OpenAiAudioSpeechModel openAiAudioSpeechModel;
 
+    private final FileService fileService;
+
+    private final String baseUrl;
+
+    private final String contextPath;
+
     public ChatServiceImpl(ChatClient chatClient,
                            OpenAiImageModel openAiImageModel,
                            OpenAiAudioTranscriptionModel openAiAudioTranscriptionModel,
-                           OpenAiAudioSpeechModel openAiAudioSpeechModel) {
+                           OpenAiAudioSpeechModel openAiAudioSpeechModel,
+                           FileService fileService,
+                           @Value("${base-url}") String baseUrl,
+                           @Value("${server.servlet.context-path}") String contextPath) {
         this.chatClient = chatClient;
         this.openAiImageModel = openAiImageModel;
         this.openAiAudioTranscriptionModel = openAiAudioTranscriptionModel;
         this.openAiAudioSpeechModel = openAiAudioSpeechModel;
+        this.fileService = fileService;
+        this.baseUrl = baseUrl;
+        this.contextPath = contextPath;
     }
 
     @Override
@@ -63,7 +70,10 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public AudioResponseDto getAudioResponse(MultipartFile promptAudio) throws IOException {
 
-        File promptAudioFile = this.createFileFromBytes(promptAudio.getBytes(), "promptAudio.mp3");
+        String promptAudioFileName = "promptAudio.mp3";
+        String audioResponseFileName = "audioResponse.mp3";
+
+        File promptAudioFile = fileService.createFileFromBytes(promptAudio.getBytes(), promptAudioFileName);
 
         String promptString = openAiAudioTranscriptionModel
                 .call(new AudioTranscriptionPrompt(new FileSystemResource(promptAudioFile))
@@ -71,43 +81,20 @@ public class ChatServiceImpl implements ChatService {
                 .getResult()
                 .getOutput();
 
-        String textResponse = this.getTextResponse(promptString);
+        String textResponse = getTextResponse(promptString);
 
         byte[] audioResponseBytes = openAiAudioSpeechModel.call(new SpeechPrompt(textResponse))
                 .getResult()
                 .getOutput();
 
-        this.createFileFromBytes(audioResponseBytes, "audioResponse.mp3");
+        fileService.createFileFromBytes(audioResponseBytes, audioResponseFileName);
 
         return new AudioResponseDto(
-                "http://localhost:8080/api/v1/chat/file/promptAudio.mp3",
+                baseUrl + contextPath + "/file/" + promptAudioFileName,
                 promptString,
-                "http://localhost:8080/api/v1/chat/file/audioResponse.mp3",
+                 baseUrl + contextPath + "/file/" + audioResponseFileName,
                 textResponse
         );
-
-    }
-
-    private File createFileFromBytes(byte[] byteArray, String fileNameWithExt) {
-
-        File file = new File("src/main/resources/runtime_resources/" + fileNameWithExt);
-
-        try {
-            if(!file.exists()) {
-                file.createNewFile();
-            }
-
-            try (OutputStream os = new FileOutputStream(file)) {
-                os.write(byteArray);
-            }
-
-            return file;
-
-        } catch(Exception e) {
-            log.error(e.getMessage());
-            throw new RuntimeException("An unknown error happened.");
-
-        }
 
     }
 

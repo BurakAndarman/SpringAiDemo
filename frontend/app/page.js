@@ -50,7 +50,9 @@ const Chat = () => {
           })
 
           if(response.status !== 200) {
-            throw new Error("There is a problem. Please try again later.")
+            const errorResponse = await response.json()
+            
+            throw new Error(errorResponse.message)
           }
 
           const incomingText = await response.text()
