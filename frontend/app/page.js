@@ -1,27 +1,21 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useChatMessagesStore } from '@/lib/chat_messages_store'
+import { useErrorStore } from '@/lib/error_store'
 import ReactMarkdown from "react-markdown"
-import Icon from '@mdi/react';
-import { mdiAlertCircleOutline } from '@mdi/js'
 
 const Chat = () => {
+  const messagesContainerRef = useRef(null)
   const [currentText, setCurrentText] = useState('')
-  const [error, setError] = useState('')
-  const errorModalRef = useRef(null)
-  const [messages, setMessages] = useState([])
-  const messagesRef = useRef(null)
+  const messages = useChatMessagesStore((state) => state.chatMessages)
+  const addMessages = useChatMessagesStore((state) => state.addMessages)
+  const changeLastMessage = useChatMessagesStore((state) => state.changeLastMessage)
+  const removeLastMessages = useChatMessagesStore((state) => state.removeLastMessages)
+  const setError = useErrorStore((state) => state.setError)
   
   useEffect(() => {
-    messagesRef.current?.lastElementChild?.scrollIntoView({behavior: 'smooth'})
+    messagesContainerRef.current?.lastElementChild?.scrollIntoView({behavior: 'smooth'})
   }, [messages])
-
-  useEffect(() => {
-    if(error) {
-      errorModalRef.current?.showModal()
-    } else {
-      errorModalRef.current?.close()
-    }
-  }, [error])
 
   const sendCurrentText = async (event) => {
       try{
@@ -31,7 +25,7 @@ const Chat = () => {
             return
           }
 
-          setMessages(prevMessages => [...prevMessages, {
+          addMessages([{
             text : currentText,
             belongsTo : 'user'
           }, {
@@ -57,12 +51,13 @@ const Chat = () => {
 
           const incomingText = await response.text()
 
-          setMessages(prevMessages => [...prevMessages.slice(0, -1), {
-              text : incomingText,
-              belongsTo : 'ai'
-          }])
+          changeLastMessage({
+            text : incomingText,
+            belongsTo : 'ai'
+          })
 
       } catch(e) {
+          removeLastMessages(2)
           setError(e.message)
       }
   }
@@ -71,14 +66,14 @@ const Chat = () => {
     <div className="container mx-auto flex flex-col gap-5 items-center h-full py-5">
         <div className="md:w-4/6 w-11/12 flex-auto overflow-y-auto h-0" 
              style={{scrollbarWidth : 'thin'}}
-             ref={messagesRef}
+             ref={messagesContainerRef}
         >
             { 
               messages.map((message, index) => 
                 <div className={`chat ${message.belongsTo === 'user' ? 'chat-end' : 'chat-start'} py-3`}
                     key={index}
                 >
-                  <div className={`chat-bubble`}>
+                  <div className="chat-bubble">
                       {message.text ? 
                         <ReactMarkdown>{message.text}</ReactMarkdown> 
                         : 
@@ -103,25 +98,6 @@ const Chat = () => {
                    className='btn rounded-full min-h-10 h-10'
             />
         </form>
-        <dialog ref={errorModalRef} className="modal">
-          <div className="modal-box">
-            <div className="flex items-center gap-2">
-              <Icon path={mdiAlertCircleOutline}
-                    color="red"
-                    size={1.2}
-              />
-              <h3 className="font-bold text-lg">Error</h3>
-            </div>
-            <p className="py-4">{ error }</p>
-            <div className="modal-action">
-                <button className="btn"
-                        onClick={() => setError('')}
-                >
-                  Close
-                </button>
-            </div>
-          </div>
-        </dialog>
     </div>
   )
 }

@@ -1,24 +1,26 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import { useChatMessagesStore } from '@/lib/chat_messages_store'
+import { useErrorStore } from '@/lib/error_store'
 import Icon from '@mdi/react'
-import { mdiMicrophone, mdiAccountVoice, mdiEarHearing, mdiAlertCircleOutline } from '@mdi/js'
+import { mdiMicrophone, mdiAccountVoice, mdiEarHearing } from '@mdi/js'
 
 const VoiceChat = () => {
   const mediaRecorder = useRef(null)
   const audio = useRef(null)
-  const errorModal = useRef(null)
   const [recording, setRecording] = useState(false)
   const [loading, setLoading] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [error, setError] = useState('')
+  const addMessages = useChatMessagesStore((state) => state.addMessages)
+  const setError = useErrorStore((state) => state.setError)
 
   useEffect(() => {
-    if(error) {
-      errorModal.current?.showModal()
-    } else {
-      errorModal.current?.close()
+    return () => {
+      if(playing) {
+        onAssistantClick()
+      }
     }
-  }, [error])
+  }, [playing])
 
   const onMicrophoneClicked = () => {
     if(mediaRecorder.current?.state !== 'recording') {
@@ -81,6 +83,14 @@ const VoiceChat = () => {
       }
   
       setLoading(false)
+
+      addMessages([{
+        text : parsedResponse.promptString,
+        belongsTo : "user"
+      }, {
+        text : parsedResponse.textResponse,
+        belongsTo : "ai"
+      }])
   
       if(!audio.current) {
         audio.current = new Audio()
@@ -153,25 +163,6 @@ const VoiceChat = () => {
               )
           }
       </div>
-      <dialog ref={errorModal} className="modal">
-          <div className="modal-box">
-            <div className="flex items-center gap-2">
-              <Icon path={mdiAlertCircleOutline}
-                    color="red"
-                    size={1.2}
-              />
-              <h3 className="font-bold text-lg">Error</h3>
-            </div>
-            <p className="py-4">{ error }</p>
-            <div className="modal-action">
-                <button className="btn"
-                        onClick={() => setError('')}
-                >
-                  Close
-                </button>
-            </div>
-          </div>
-        </dialog>
     </div>
   )
 }
