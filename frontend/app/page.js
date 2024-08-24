@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useChatMessagesStore } from '@/lib/chat_messages_store'
 import { useErrorStore } from '@/lib/error_store'
 import ReactMarkdown from "react-markdown"
+import Icon from '@mdi/react'
+import { mdiArrowUp } from '@mdi/js'
 
 const Chat = () => {
   const messagesContainerRef = useRef(null)
@@ -37,9 +39,6 @@ const Chat = () => {
 
           const response = await fetch('http://localhost:8080/api/v1/chat/text',{
               method : "POST",
-              headers: {
-                'Content-Type': 'text/plain'
-              },
               body : textToSend
           })
 
@@ -85,7 +84,7 @@ const Chat = () => {
             }
         </div>
         <form onSubmit={sendCurrentText} 
-              className="input input-bordered rounded-full flex items-center gap-2 pr-0 bg-base-200 md:w-4/6 w-11/12"
+              className="input input-bordered rounded-full flex items-center gap-2 pr-1 bg-base-200 md:w-4/6 w-11/12"
         >
             <input type="text"
                    value={currentText}
@@ -93,10 +92,14 @@ const Chat = () => {
                    className="grow"
                    placeholder="Send a message"
             />
-            <input type="submit"
-                   value="Send"
-                   className='btn rounded-full min-h-10 h-10'
-            />
+            <button type="submit"
+                    className='btn btn-primary rounded-full min-h-10 h-10'
+            >
+              <Icon path={mdiArrowUp}
+                    size={1}
+                    color="white"
+              />
+            </button>
         </form>
     </div>
   )

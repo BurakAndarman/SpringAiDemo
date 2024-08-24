@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useChatMessagesStore } from '@/lib/chat_messages_store'
 import { useErrorStore } from '@/lib/error_store'
 import Icon from '@mdi/react'
@@ -13,14 +13,6 @@ const VoiceChat = () => {
   const [playing, setPlaying] = useState(false)
   const addMessages = useChatMessagesStore((state) => state.addMessages)
   const setError = useErrorStore((state) => state.setError)
-
-  useEffect(() => {
-    return () => {
-      if(playing) {
-        onAssistantClick()
-      }
-    }
-  }, [playing])
 
   const onMicrophoneClicked = () => {
     if(mediaRecorder.current?.state !== 'recording') {
