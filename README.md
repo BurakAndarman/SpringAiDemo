@@ -1,4 +1,4 @@
-# IntelliMind
+# IntelliMind 🧠
 
 IntelliMind is an AI application that is powered by OpenAI models.
 
@@ -34,6 +34,6 @@ Zustand is being used for holding text messages that comes from both text and au
 | ------------- |
 | <img src="https://github.com/user-attachments/assets/ef77370d-fcef-49a8-bf4b-b06ad5750bf1" width="500px"> |
 
-| Dark Mode |
+| Image Gen. |
 | ------------- |
 | <img src="https://github.com/user-attachments/assets/4443beb1-d22b-439e-bd42-7853419bd0eb" width="500px"> |
