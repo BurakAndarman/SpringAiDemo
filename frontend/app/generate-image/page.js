@@ -52,7 +52,7 @@ const GenerateImage = () => {
                   className="textarea textarea-bordered textarea-md resize-none bg-base-200 w-80 h-auto"
                   style={{scrollbarWidth : 'thin'}}
                   rows={3}
-                  spellcheck="false"
+                  spellCheck="false"
                   placeholder="Write a prompt"
         />
         <button onClick={sendCurrentText}
@@ -85,7 +85,7 @@ const GenerateImage = () => {
                   />
                   :
                   <div>
-                    Image will appear here!
+                    Image will appear here
                   </div>
             }
         </div>
