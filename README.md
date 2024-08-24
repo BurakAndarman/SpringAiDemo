@@ -26,9 +26,13 @@ Zustand is being used for holding text messages that comes from both text and au
 
 ## Screenshots 📷  
 
-| Text Conv. | Audio Conv. |
-| ------------- | ------------- |
-| <img src="https://github.com/user-attachments/assets/8ce37365-d349-4c4d-98ef-6912f242823b" width="600px"> | <img src="https://github.com/user-attachments/assets/ef77370d-fcef-49a8-bf4b-b06ad5750bf1" width="600px"> |
+| Text Conv. |
+| ------------- |
+| <img src="https://github.com/user-attachments/assets/8ce37365-d349-4c4d-98ef-6912f242823b" width="500px"> |
+
+| Audio Conv. |
+| ------------- |
+| <img src="https://github.com/user-attachments/assets/ef77370d-fcef-49a8-bf4b-b06ad5750bf1" width="500px"> |
 
 | Dark Mode |
 | ------------- |
