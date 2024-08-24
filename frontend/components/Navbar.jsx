@@ -25,7 +25,7 @@ const Navbar = () => {
                         <li><Link href="/generate-image">Generate Image</Link></li>
                     </ul>
                 </div>
-                <Link href="/" className="btn btn-ghost text-xl">SpringAiDemo</Link>
+                <Link href="/" className="btn btn-ghost text-xl">IntelliMind</Link>
             </div>
             <div className="hidden md:block">
                 <ul className="menu menu-horizontal p-0">
