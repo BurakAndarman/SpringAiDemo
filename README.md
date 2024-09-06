@@ -20,7 +20,7 @@ IntelliMind is an AI application that is powered by OpenAI models.
 ## Some Notes 📝
 
 For the audio conversation part, I convert user audio to text in the backend and send it to 
-ChatGPT since multimodal interface in SpringAI doesn't support audio currently. 
+ChatGPT. 
 When text response received, it is being converted to audio for frontend.
 Zustand is being used for holding text messages that comes from both text and audio conversation part.
 
